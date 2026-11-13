@@ -1,0 +1,16 @@
+# Windows / cloud-drive metadata
+desktop.ini
+**/desktop.ini
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Environment and generated files
+.env
+.env.*
+!.env.example
+dist/
+build/
+coverage/
+logs/
