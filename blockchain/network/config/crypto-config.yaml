@@ -1,0 +1,49 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: example.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer0
+        SANS:
+          - orderer0.example.com
+          - localhost
+      - Hostname: orderer1
+        SANS:
+          - orderer1.example.com
+          - localhost
+      - Hostname: orderer2
+        SANS:
+          - orderer2.example.com
+          - localhost
+
+PeerOrgs:
+  - Name: OrgHarvest
+    Domain: org-harvest.example.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+        - peer0.org-harvest.example.com
+    Users:
+      Count: 1
+  - Name: OrgProcessing
+    Domain: org-processing.example.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+        - peer0.org-processing.example.com
+    Users:
+      Count: 1
+  - Name: OrgDistribution
+    Domain: org-distribution.example.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+        - peer0.org-distribution.example.com
+    Users:
+      Count: 1

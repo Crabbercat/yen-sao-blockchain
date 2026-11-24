@@ -14,3 +14,15 @@ dist/
 build/
 coverage/
 logs/
+backend/storage/
+backend/fabric-runtime/
+blockchain/organizations/crypto-config/
+blockchain/organizations/ca-clients/
+blockchain/network/organizations/crypto-config/
+blockchain/network/channel-artifacts/*.block
+blockchain/network/channel-artifacts/*.tx
+blockchain/network/channel-artifacts/*.json
+blockchain/network/chaincode-packages/
+/tests/reports/security/*.json
+/tests/reports/security/*.md
+/tests/reports/security/evidence/*.json

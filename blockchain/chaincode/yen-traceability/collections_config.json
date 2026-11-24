@@ -1,0 +1,14 @@
+[
+  {
+    "name": "collectionPrivateCommercial",
+    "policy": "OR('OrgHarvestMSP.member','OrgProcessingMSP.member')",
+    "requiredPeerCount": 1,
+    "maxPeerCount": 2,
+    "blockToLive": 0,
+    "memberOnlyRead": true,
+    "memberOnlyWrite": true,
+    "endorsementPolicy": {
+      "signaturePolicy": "AND('OrgHarvestMSP.peer','OrgProcessingMSP.peer')"
+    }
+  }
+]

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Yen Sao security test run result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "testId",
+    "name",
+    "category",
+    "risk",
+    "target",
+    "profile",
+    "status",
+    "startedAt",
+    "finishedAt",
+    "durationMs",
+    "expected",
+    "actual",
+    "summary",
+    "evidence",
+    "notes"
+  ],
+  "properties": {
+    "schemaVersion": { "enum": ["1.0.0", "1.1.0"] },
+    "runId": { "type": "string", "format": "uuid" },
+    "testId": {
+      "type": "string",
+      "enum": ["AT-01", "AT-02", "AT-03", "AT-04", "AT-05", "AT-06", "AT-07", "AT-08", "AT-09", "AT-10", "AT-11", "AT-12", "AT-13", "AT-14"]
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "category": { "type": "string", "minLength": 1 },
+    "risk": { "enum": ["Low", "Medium", "High", "Critical"] },
+    "target": { "type": "string", "minLength": 1 },
+    "profile": { "enum": ["lab-current", "baseline", "hardened"] },
+    "status": { "enum": ["NOT_RUN", "RUNNING", "PASS", "FAIL", "ERROR"] },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "finishedAt": { "type": ["string", "null"], "format": "date-time" },
+    "durationMs": { "type": "integer", "minimum": 0 },
+    "expected": { "type": "string", "minLength": 1 },
+    "actual": { "type": "string" },
+    "summary": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri-reference" }
+    },
+    "finding": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["severity", "impact", "evidence", "remediation", "retestResult"],
+          "properties": {
+            "severity": { "enum": ["Low", "Medium", "High", "Critical"] },
+            "impact": { "type": "string", "minLength": 1 },
+            "evidence": { "type": "string", "format": "uri-reference" },
+            "remediation": { "type": "string", "minLength": 1 },
+            "retestResult": { "enum": ["NOT_RETESTED", "PASS", "FAIL"] }
+          }
+        }
+      ]
+    },
+    "notes": { "type": "array", "items": { "type": "string" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "RUNNING" } } },
+      "then": { "properties": { "finishedAt": { "type": "null" } } },
+      "else": { "properties": { "finishedAt": { "type": "string", "format": "date-time" } } }
+    },
+    {
+      "if": { "properties": { "schemaVersion": { "const": "1.1.0" } } },
+      "then": {
+        "required": ["finding"],
+        "allOf": [
+          {
+            "if": { "properties": { "status": { "const": "FAIL" } } },
+            "then": { "properties": { "finding": { "type": "object" } } },
+            "else": { "properties": { "finding": { "type": "null" } } }
+          }
+        ]
+      }
+    }
+  ]
+}

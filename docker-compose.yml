@@ -1,0 +1,105 @@
+name: yen-sao-blockchain
+
+services:
+  postgres:
+    image: postgres:16.16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yen_sao}
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-yen_sao_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Set POSTGRES_ADMIN_PASSWORD in .env}
+      APP_DB_USER: ${DB_USER:-yen_sao_app}
+      APP_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: "3000"
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:3000}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB:-yen_sao}
+      DB_USER: ${DB_USER:-yen_sao_app}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      DEMO_USERS_PASSWORD: ${DEMO_USERS_PASSWORD:?Set DEMO_USERS_PASSWORD in .env}
+      SECURITY_LAB_MODE: ${SECURITY_LAB_MODE:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      FABRIC_CHANNEL_NAME: supplychannel
+      FABRIC_CHAINCODE_NAME: yen-sao-contract
+      FABRIC_IDENTITY_ROOT: /app/fabric-identities
+      FABRIC_TLS_ROOT: /app/fabric-tls
+      FILE_STORAGE_PATH: /app/storage/uploads
+    command: ["sh", "-c", "node backend/src/db/migrate.js && node backend/src/db/seed.js && node backend/src/server.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./backend/fabric-runtime/identities/harvest.operator/msp:/app/fabric-identities/harvest.operator/msp:ro
+      - ./backend/fabric-runtime/identities/processing.operator/msp:/app/fabric-identities/processing.operator/msp:ro
+      - ./backend/fabric-runtime/identities/quality.inspector/msp:/app/fabric-identities/quality.inspector/msp:ro
+      - ./backend/fabric-runtime/identities/distributor.operator/msp:/app/fabric-identities/distributor.operator/msp:ro
+      - ./backend/fabric-runtime/tls/harvest:/app/fabric-tls/harvest:ro
+      - ./backend/fabric-runtime/tls/processing:/app/fabric-tls/processing:ro
+      - ./backend/fabric-runtime/tls/distribution:/app/fabric-tls/distribution:ro
+      - backend_uploads:/app/storage/uploads
+      - security_reports:/app/tests/reports
+    ports:
+      - "127.0.0.1:${PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/ready').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - app-network
+      - fabric-network
+
+  backend-storage-init:
+    image: alpine:3.24.4
+    user: "0:0"
+    command:
+      [
+        "sh",
+        "-c",
+        "mkdir -p /app/storage/uploads && if [ \"$(stat -c %u /app/storage/uploads)\" != \"1000\" ]; then chown -R 1000:1000 /app/storage; fi"
+      ]
+    volumes:
+      - backend_uploads:/app/storage
+    restart: "no"
+    network_mode: none
+
+volumes:
+  postgres_data:
+  backend_uploads:
+  security_reports:
+
+networks:
+  app-network:
+    driver: bridge
+  fabric-network:
+    name: yen-sao-fabric-network
+    external: true

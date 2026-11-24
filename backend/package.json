@@ -1,0 +1,35 @@
+{
+  "name": "yen-sao-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend API foundation for the Yen Sao traceability prototype",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "db:migrate": "node src/db/migrate.js",
+    "db:seed": "node src/db/seed.js",
+    "db:setup": "npm run db:migrate && npm run db:seed",
+    "fabric:prepare": "node src/fabric/prepare-runtime.js",
+    "test": "node --test",
+    "test:security": "node ../tests/security/run.js",
+    "test:security:unit": "node --test ../tests/security/runner.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "ip-address": "10.7.4"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "1.14.5",
+    "@hyperledger/fabric-gateway": "1.8.0",
+    "bcryptjs": "3.0.2",
+    "express": "5.3.0",
+    "express-rate-limit": "8.2.2",
+    "helmet": "8.1.0",
+    "multer": "2.5.0",
+    "pg": "8.23.1",
+    "qrcode": "1.5.4",
+    "zod": "4.6.6"
+  }
+}

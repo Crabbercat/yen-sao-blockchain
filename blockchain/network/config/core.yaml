@@ -1,0 +1,57 @@
+peer:
+  id: peer
+  networkId: yen-sao-local
+  listenAddress: 0.0.0.0:7051
+  address: 127.0.0.1:7051
+  gateway:
+    enabled: true
+  discovery:
+    enabled: true
+    orgMembersAllowedAccess: false
+  gossip:
+    pvtData:
+      pullRetryThreshold: 60s
+      transientstoreMaxBlockRetention: 1000
+      pushAckTimeout: 3s
+      btlPullMargin: 10
+      reconcileBatchSize: 10
+      reconcileSleepInterval: 1m
+      reconciliationEnabled: true
+      skipPullingInvalidTransactionsDuringCommit: false
+  BCCSP:
+    Default: SW
+    SW:
+      Hash: SHA2
+      Security: 256
+      FileKeyStore:
+        KeyStore:
+  handlers:
+    authFilters:
+      - name: DefaultAuth
+      - name: ExpirationCheck
+    decorators:
+      - name: DefaultDecorator
+    endorsers:
+      escc:
+        name: DefaultEndorsement
+        library:
+    validators:
+      vscc:
+        name: DefaultValidation
+        library:
+
+vm:
+  endpoint: unix:///host/var/run/docker.sock
+
+chaincode:
+  builder: hyperledger/fabric-ccenv:2.5.16
+  node:
+    runtime: hyperledger/fabric-nodeenv:2.5
+  mode: net
+  executetimeout: 300s
+  startuptimeout: 300s
+  system:
+    _lifecycle: enable
+    cscc: enable
+    lscc: enable
+    qscc: enable

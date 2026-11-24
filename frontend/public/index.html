@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Nền tảng truy xuất nguồn gốc yến sào Cù Lao Chàm trên Hyperledger Fabric">
+    <meta name="theme-color" content="#123c3b">
+    <title>Yến Sào Cù Lao Chàm — Traceability</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Yến Sào Cù Lao Chàm trang chủ">
+        <span class="brand-mark" aria-hidden="true">YS</span>
+        <span>
+          <strong>Yến Sào Cù Lao Chàm</strong>
+          <small>Supply chain traceability</small>
+        </span>
+      </a>
+      <div class="topbar-actions">
+        <div class="connection-status" aria-live="polite">
+          <span id="connection-dot" class="status-dot status-dot--unknown" aria-hidden="true"></span>
+          <span id="connection-label">Đang kiểm tra kết nối</span>
+        </div>
+        <button id="public-trace-button" class="button button--quiet" type="button">Tra cứu công khai</button>
+        <span id="user-label" class="user-label" hidden></span>
+        <button id="logout-button" class="button button--quiet" type="button" hidden>Đăng xuất</button>
+      </div>
+    </header>
+
+    <main id="app-main">
+      <section id="login-panel" class="login-layout" aria-labelledby="login-title">
+        <div class="login-intro">
+          <p class="eyebrow">Chuỗi cung ứng minh bạch</p>
+          <h1>Theo dõi hành trình<br>từ vùng khai thác đến người dùng.</h1>
+          <p class="muted">Sự kiện truy xuất được ghi nhận trên Hyperledger Fabric. Dữ liệu nghiệp vụ ứng dụng được quản lý riêng trong PostgreSQL.</p>
+          <div class="feature-list">
+            <p><span aria-hidden="true">01</span> Lịch sử lô hàng có thể kiểm chứng</p>
+            <p><span aria-hidden="true">02</span> Phân quyền theo tổ chức cung ứng</p>
+            <p><span aria-hidden="true">03</span> Thông tin thương mại riêng tư</p>
+          </div>
+        </div>
+        <form id="login-form" class="panel login-card">
+          <p class="eyebrow">Khu vực đối tác</p>
+          <h2 id="login-title">Đăng nhập</h2>
+          <p class="muted">Sử dụng tài khoản được cấp bởi quản trị viên dự án.</p>
+          <label class="field">
+            <span>Tên đăng nhập</span>
+            <input name="username" autocomplete="username" required maxlength="80">
+          </label>
+          <label class="field">
+            <span>Mật khẩu</span>
+            <input name="password" type="password" autocomplete="current-password" required maxlength="200">
+          </label>
+          <button class="button button--primary button--wide" type="submit">Đăng nhập an toàn</button>
+          <p id="login-error" class="form-error" role="alert" hidden></p>
+        </form>
+      </section>
+
+      <section id="dashboard-panel" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Không gian làm việc</p>
+            <h1 id="dashboard-title">Tổng quan chuỗi cung ứng</h1>
+          </div>
+          <button id="refresh-button" class="button button--secondary" type="button">Làm mới dữ liệu</button>
+        </div>
+        <nav class="tabs" aria-label="Điều hướng ứng dụng">
+          <button class="tab is-active" data-view="overview" type="button">Tổng quan</button>
+          <button class="tab" data-view="batches" type="button">Lô hàng</button>
+          <button class="tab" data-view="operations" type="button">Nghiệp vụ</button>
+          <button class="tab" data-view="trace" type="button">Tra cứu công khai</button>
+          <button class="tab" data-view="security" type="button">Security lab</button>
+        </nav>
+        <div id="view-container" class="view-container"></div>
+      </section>
+
+      <section id="public-trace-panel" class="public-trace-page" aria-labelledby="trace-title" hidden>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Dành cho người tiêu dùng</p>
+            <h1 id="trace-title">Tra cứu nguồn gốc sản phẩm</h1>
+          </div>
+          <button id="back-button" class="button button--secondary" type="button">Quay lại</button>
+        </div>
+        <p class="muted">Chỉ dữ liệu công khai được hiển thị. Thông tin thương mại riêng tư không xuất hiện trong trang tra cứu.</p>
+        <form id="public-trace-form" class="search-form">
+          <label class="field field--grow">
+            <span>Mã lô hàng</span>
+            <input name="batchId" required maxlength="64" placeholder="Ví dụ: YEN-2026-0001-A">
+          </label>
+          <button class="button button--primary" type="submit">Tra cứu</button>
+        </form>
+        <div id="public-trace-result" class="trace-result" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <footer class="footer">
+      <span>Yến Sào Cù Lao Chàm</span>
+      <span>Prototype truy xuất nguồn gốc — dữ liệu giao dịch trên Fabric</span>
+    </footer>
+  </body>
+</html>
