@@ -280,6 +280,26 @@ function setAuthenticatedSession(session) {
   refreshDashboardData();
 }
 
+async function restoreAuthenticatedSession() {
+  const storedToken = sessionStorage.getItem("accessToken");
+  if (!storedToken) return;
+
+  accessToken = storedToken;
+  try {
+    const session = await api("/api/v1/auth/me");
+    setAuthenticatedSession({ accessToken: storedToken, user: session.user });
+  } catch (error) {
+    if (error.status === 401) {
+      sessionStorage.removeItem("accessToken");
+      accessToken = null;
+      return;
+    }
+    elements.loginError.textContent = `Lỗi xảy ra khi khôi phục session: ${error.message}`;
+    elements.loginError.hidden = false;
+    accessToken = null;
+  }
+}
+
 async function signOut(revoke = true) {
   if (revoke && accessToken) {
     try {
@@ -288,6 +308,7 @@ async function signOut(revoke = true) {
       showNotice("Không thể xác nhận đăng xuất trên máy chủ. Phiên trên trình duyệt đã được xóa.", true);
     }
   }
+  sessionStorage.removeItem("accessToken");
   accessToken = null;
   currentUser = null;
   batches = [];
@@ -1225,6 +1246,7 @@ elements.loginForm.addEventListener("submit", async (event) => {
       method: "POST",
       body: JSON.stringify(values)
     });
+    sessionStorage.setItem("accessToken", session.accessToken);
     elements.loginForm.reset();
     setAuthenticatedSession(session);
   } catch (error) {
@@ -1271,3 +1293,4 @@ if (traceFromUrl) {
   if (decodedTraceId) runPublicTrace(decodedTraceId);
 }
 refreshConnectionStatus();
+restoreAuthenticatedSession();
