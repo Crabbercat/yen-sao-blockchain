@@ -109,7 +109,7 @@ function createApp({
     handler: (request, response) => response.status(429).json({
       error: {
         code: "RATE_LIMITED",
-        message: "Too many API requests",
+        message: "Too many API requests. Please try again later.",
         requestId: request.requestId,
         details: []
       }
